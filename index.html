@@ -1,0 +1,978 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Welcome to ET-ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --erp-blue: #1289C8;
+    --erp-blue-dark: #0E6BA0;
+    --erp-blue-light: #4DA3D1;
+    --erp-panel-header: #155080;
+    --erp-bg: #F4F6F8;
+    --erp-card: #FFFFFF;
+    --erp-text: #2C3E50;
+    --erp-muted: #7B8A99;
+    --erp-border: #C5D2DD;
+    --erp-field-bg: #FFFFFF;
+    --erp-field-border: #C5D2DD;
+    --update-btn: #6E2D4F;
+    --back-btn: #E08F1A;
+    --new-section-bg: #FFFBEB;
+    --new-section-border: #FCD34D;
+    --new-badge-text: #92400E;
+    --green-live: #2ECC71;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Open Sans', 'Segoe UI', sans-serif;
+    background: var(--erp-bg);
+    color: var(--erp-text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--erp-border);
+    padding: 8px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .et-logo {
+    font-weight: 700; font-size: 24px;
+    color: var(--erp-blue-dark);
+  }
+  .et-logo .et { color: #DC2626; }
+  .welcome-text { font-size: 13px; }
+  .welcome-text .name { color: #16A34A; font-weight: 600; }
+  .live-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(46,204,113,0.12); color: #16A34A;
+    padding: 4px 12px; border-radius: 100px;
+    font-size: 11px; font-weight: 600; margin-left: 14px;
+  }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--green-live);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(46,204,113,0.6); }
+    70%  { box-shadow: 0 0 0 7px rgba(46,204,113,0); }
+    100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
+  }
+  .live-pill.err { background: rgba(231,76,60,0.12); color: #DC2626; }
+  .live-pill.err .live-dot { background: #DC2626; animation: none; }
+
+  .menu-strip {
+    background: var(--erp-blue);
+    display: flex; align-items: center;
+  }
+  .menu-strip .menu-item {
+    color: #fff; padding: 10px 18px; font-size: 13px; font-weight: 600;
+    cursor: default; user-select: none;
+    border-right: 1px solid rgba(255,255,255,0.12);
+  }
+  .menu-strip .menu-item:hover { background: var(--erp-blue-dark); }
+  .menu-strip .menu-item .caret { opacity: 0.7; margin-left: 4px; font-size: 10px; }
+
+  .page-title-strip {
+    background: var(--erp-blue-light);
+    color: #fff;
+    padding: 8px 24px;
+    font-size: 14px; font-weight: 600;
+  }
+
+  .container {
+    display: flex;
+    min-height: calc(100vh - 140px);
+  }
+  .leads-sidebar {
+    width: 280px;
+    background: var(--erp-card);
+    border-right: 1px solid var(--erp-border);
+    flex-shrink: 0;
+  }
+  .leads-sidebar-header {
+    background: var(--erp-panel-header);
+    color: #fff;
+    padding: 10px 16px;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .lead-count-badge {
+    background: var(--back-btn); color: #fff;
+    padding: 1px 8px; border-radius: 100px;
+    font-size: 11px;
+  }
+  .lead-list { max-height: calc(100vh - 200px); overflow-y: auto; }
+  .lead-row {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--erp-border);
+    cursor: pointer; font-size: 12px;
+    border-left: 3px solid transparent;
+    transition: background 0.12s;
+  }
+  .lead-row:hover { background: #F0F7FB; }
+  .lead-row.selected { background: #E3F1FA; border-left-color: var(--erp-blue); }
+  .lead-row.new-arrival { animation: highlight-new 2.5s ease-out; }
+  @keyframes highlight-new {
+    0%   { background: rgba(46,204,113,0.20); }
+    100% { background: transparent; }
+  }
+  .lead-row-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 3px;
+  }
+  .lead-row-company { font-weight: 600; }
+  .lead-row-buyer { color: var(--erp-muted); font-size: 11.5px; }
+  .lead-row-time { color: var(--erp-muted); font-size: 11px; margin-top: 3px; }
+
+  .id-badge {
+    display: inline-block; padding: 1px 8px;
+    border-radius: 3px; font-weight: 700; font-size: 11px;
+    font-family: monospace;
+  }
+  .id-1 { background: #D1FAE5; color: #065F46; }
+  .id-2 { background: #DBEAFE; color: #1E40AF; }
+  .id-3 { background: #FEF3C7; color: #92400E; }
+  .id-4 { background: #FEE2E2; color: #991B1B; }
+  .id-x { background: #E5E7EB; color: #6B7280; }
+
+  .detail-area { flex: 1; padding: 16px 24px; overflow-x: hidden; }
+
+  .empty-state {
+    text-align: center; padding: 80px 40px;
+    color: var(--erp-muted);
+  }
+  .empty-state h3 { margin: 12px 0 6px; color: var(--erp-text); font-size: 15px; }
+  .empty-state p { margin: 0; font-size: 13px; }
+
+  .panel {
+    background: var(--erp-card);
+    border: 1px solid var(--erp-border);
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .panel-header {
+    background: var(--erp-panel-header);
+    color: #fff;
+    padding: 8px 18px;
+    font-weight: 700; font-size: 13px;
+    letter-spacing: 0.4px; text-transform: uppercase;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .panel-header.with-new {
+    background: linear-gradient(90deg, var(--erp-panel-header) 0%, #2C7BBE 100%);
+  }
+  .new-badge {
+    background: var(--back-btn); color: #fff;
+    padding: 2px 10px; border-radius: 100px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+  }
+  .new-section-note {
+    background: var(--new-section-bg);
+    border-bottom: 1px solid var(--new-section-border);
+    padding: 8px 18px;
+    font-size: 11.5px;
+    color: var(--new-badge-text);
+  }
+
+  .buyer-summary {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #E8EFF4;
+    border-bottom: 1px solid var(--erp-border);
+    padding: 12px 18px;
+  }
+  .buyer-summary .col { padding: 0 8px; border-right: 1px solid #D2DCE5; }
+  .buyer-summary .col:last-child { border-right: none; }
+  .buyer-summary .lbl {
+    font-size: 10.5px; color: var(--erp-muted);
+    font-weight: 600; margin-bottom: 4px;
+  }
+  .buyer-summary .val { font-size: 13px; font-weight: 500; }
+  .buyer-summary .first-row {
+    grid-column: 1 / -1;
+    display: grid; grid-template-columns: auto 1fr;
+    align-items: center; gap: 24px;
+    border-bottom: 1px solid #D2DCE5;
+    padding-bottom: 8px; margin-bottom: 8px;
+  }
+  .buyer-summary .fpoc-select {
+    padding: 5px 10px; border: 1px solid var(--erp-field-border);
+    background: var(--erp-field-bg); font-size: 12.5px;
+    font-family: inherit; min-width: 280px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px 22px;
+    padding: 18px;
+  }
+  .form-field { display: flex; flex-direction: column; gap: 5px; }
+  .form-field label {
+    font-size: 12px; font-weight: 600;
+  }
+  .form-field input,
+  .form-field select,
+  .form-field textarea {
+    padding: 6px 10px; font-size: 12.5px; font-family: inherit;
+    border: 1px solid var(--erp-field-border);
+    background: var(--erp-field-bg);
+    color: var(--erp-text);
+    border-radius: 0;
+  }
+  .form-field textarea { resize: vertical; min-height: 60px; }
+  .form-field input:read-only { background: #FAFBFC; }
+  .form-field.half2 { grid-column: span 2; }
+
+  .form-actions {
+    padding: 14px 18px; display: flex; gap: 10px;
+    border-top: 1px solid var(--erp-border);
+  }
+  .btn {
+    border: none; padding: 8px 28px; font-size: 13px; font-weight: 600;
+    cursor: pointer; color: #fff; font-family: inherit;
+    border-radius: 3px;
+  }
+  .btn-update { background: var(--update-btn); }
+  .btn-update:hover { background: #5A2541; }
+  .btn-back { background: var(--back-btn); }
+  .btn-back:hover { background: #C77D14; }
+
+  .ai-sub {
+    background: var(--new-section-bg);
+    border: 1px solid var(--new-section-border);
+    margin: 14px 18px;
+    padding: 14px 18px;
+  }
+  .ai-sub-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .ai-sub-title {
+    font-size: 12px; font-weight: 700; color: var(--new-badge-text);
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .ai-sub-badge {
+    background: var(--back-btn); color: #fff;
+    padding: 1px 8px; border-radius: 3px;
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .ai-sub-note { font-size: 11.5px; color: var(--erp-muted); margin-left: auto; }
+
+  .score-table { width: 100%; border-collapse: collapse; font-size: 12.5px; background: #fff; }
+  .score-table th {
+    background: #ECF4FA; padding: 8px 12px;
+    text-align: left; font-weight: 700; color: var(--erp-text);
+    border: 1px solid var(--erp-border);
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .score-table th:nth-child(2), .score-table th:nth-child(3), .score-table th:nth-child(4) {
+    text-align: center;
+  }
+  .score-table td { padding: 7px 12px; border: 1px solid var(--erp-border); }
+  .score-table td:nth-child(2), .score-table td:nth-child(3), .score-table td:nth-child(4) {
+    text-align: center;
+  }
+  .score-table tr.total td {
+    background: #FEF3C7; font-weight: 700; color: var(--update-btn);
+  }
+
+  .action-box {
+    background: #fff; padding: 12px 14px;
+    border: 1px solid var(--erp-border); border-left: 3px solid var(--back-btn);
+    font-size: 13px; line-height: 1.6;
+  }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .findings-block, .gaps-block {
+    background: #fff; padding: 10px 14px; border: 1px solid var(--erp-border);
+  }
+  .findings-block h4, .gaps-block h4 {
+    margin: 0 0 6px; font-size: 11.5px;
+    text-transform: uppercase; letter-spacing: 0.5px; color: var(--erp-muted);
+    font-weight: 700;
+  }
+  .findings-block ul, .gaps-block ul { margin: 0; padding-left: 18px; font-size: 12.5px; }
+  .findings-block li, .gaps-block li { margin-bottom: 5px; }
+
+  .intel-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px;
+  }
+  .intel-grid.full { grid-template-columns: 1fr; }
+  .intel-field {
+    background: #fff; padding: 10px 14px; border: 1px solid var(--erp-border);
+  }
+  .intel-field .lbl {
+    font-size: 10.5px; color: var(--erp-muted);
+    font-weight: 600; margin-bottom: 4px;
+  }
+  .intel-field .val {
+    font-size: 12.5px; white-space: pre-wrap; line-height: 1.5;
+  }
+  .intel-field .val.empty { color: var(--erp-muted); font-style: italic; }
+
+  .email-stack { display: flex; flex-direction: column; gap: 10px; }
+  .email-card {
+    background: #fff; border: 1px solid var(--erp-border);
+    padding: 12px 14px;
+  }
+  .email-card-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 6px;
+  }
+  .email-card-title { font-weight: 700; color: var(--erp-blue-dark); font-size: 12.5px; }
+  .email-card-date {
+    background: var(--back-btn); color: #fff;
+    padding: 1px 8px; border-radius: 3px;
+    font-size: 10.5px; font-weight: 600;
+  }
+  .email-card-meta { font-size: 11.5px; color: var(--erp-muted); margin-bottom: 6px; }
+  .email-card-subject {
+    font-size: 12.5px; font-weight: 600; margin-bottom: 6px;
+  }
+  .email-card-body {
+    background: #F9FAFB; padding: 8px 10px;
+    border: 1px solid #E5E7EB;
+    font-size: 12px; white-space: pre-wrap; line-height: 1.5;
+    max-height: 180px; overflow-y: auto;
+  }
+
+  .storage-indicator {
+    background: #fff; border: 1px solid var(--erp-border);
+    padding: 10px 16px; margin-bottom: 14px;
+    font-size: 12px; display: flex; align-items: center; gap: 12px;
+    flex-wrap: wrap;
+  }
+  .storage-indicator .lbl { font-weight: 700; }
+  .storage-indicator .val { color: var(--erp-blue-dark); font-weight: 600; }
+  .storage-indicator .sep { color: var(--erp-border); }
+
+  /* API endpoint info card — the key visual element of the demo */
+  .api-card {
+    background: linear-gradient(135deg, #0E6BA0 0%, #155080 100%);
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(14, 107, 160, 0.25);
+  }
+  .api-card-title {
+    font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+    font-weight: 700; opacity: 0.85; margin-bottom: 4px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .api-card-title .badge {
+    background: var(--back-btn); color: #fff;
+    padding: 2px 8px; border-radius: 3px;
+    font-size: 9.5px; letter-spacing: 0.5px;
+  }
+  .api-card-sub {
+    font-size: 12px; opacity: 0.92; margin-bottom: 12px; line-height: 1.45;
+  }
+  .api-row {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.10);
+    border-radius: 4px;
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+  .api-row .key {
+    font-weight: 700; text-transform: uppercase;
+    font-size: 10.5px; letter-spacing: 0.5px; opacity: 0.9;
+  }
+  .api-row .val {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    word-break: break-all;
+    color: #FFE9D6;
+  }
+  .api-row .copy-btn {
+    background: var(--back-btn); color: #fff;
+    border: none; padding: 4px 12px; border-radius: 3px;
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .api-row .copy-btn:hover { background: #C77D14; }
+  .api-row .copy-btn.copied { background: var(--green-live); }
+  .api-card-footer {
+    margin-top: 10px; font-size: 11px; opacity: 0.78;
+    line-height: 1.5; font-style: italic;
+  }
+
+  .toast {
+    position: fixed; top: 60px; right: 20px; z-index: 999;
+    background: var(--green-live); color: #fff;
+    padding: 10px 16px; border-radius: 4px;
+    font-size: 13px; font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateX(120%); transition: transform 0.3s ease;
+  }
+  .toast.show { transform: translateX(0); }
+
+  footer {
+    background: #fff; border-top: 1px solid var(--erp-border);
+    padding: 10px 24px;
+    font-size: 11.5px; color: var(--erp-muted);
+  }
+  footer a { color: var(--erp-blue-dark); text-decoration: none; margin-right: 14px; }
+
+  @media (max-width: 1100px) {
+    .form-grid { grid-template-columns: repeat(2, 1fr); }
+    .buyer-summary { grid-template-columns: repeat(3, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .leads-sidebar { display: none; }
+    .form-grid { grid-template-columns: 1fr; }
+    .buyer-summary { grid-template-columns: 1fr 1fr; }
+    .intel-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="et-logo"><span class="et">ET</span>-ERP</div>
+  <div>
+    <span class="welcome-text">Welcome <span class="name">Shreya Dey,</span></span>
+    <span class="live-pill" id="live-pill"><span class="live-dot" id="live-dot"></span><span id="live-text">Live · auto-sync 3s</span></span>
+  </div>
+</div>
+
+<nav class="menu-strip">
+  <div class="menu-item">CRM<span class="caret">▾</span></div>
+  <div class="menu-item">Items<span class="caret">▾</span></div>
+  <div class="menu-item">Production<span class="caret">▾</span></div>
+  <div class="menu-item">Materials<span class="caret">▾</span></div>
+  <div class="menu-item">Report<span class="caret">▾</span></div>
+  <div class="menu-item">OfferIT<span class="caret">▾</span></div>
+  <div class="menu-item">Payments<span class="caret">▾</span></div>
+  <div class="menu-item">Bills<span class="caret">▾</span></div>
+  <div class="menu-item">Shipping<span class="caret">▾</span></div>
+  <div class="menu-item">Finance<span class="caret">▾</span></div>
+  <div class="menu-item">Settings<span class="caret">▾</span></div>
+  <div class="menu-item">Resources<span class="caret">▾</span></div>
+</nav>
+
+<div class="page-title-strip">Post Fair Entry</div>
+
+<div class="container">
+
+  <aside class="leads-sidebar">
+    <div class="leads-sidebar-header">
+      <span>Recent Buyers</span>
+      <span class="lead-count-badge" id="lead-count">0</span>
+    </div>
+    <div class="lead-list" id="lead-list">
+      <div style="padding:24px; text-align:center; color:var(--erp-muted); font-size:12px;">
+        Waiting for leads from Trade Fair Analyzer…
+      </div>
+    </div>
+  </aside>
+
+  <div class="detail-area" id="detail-area">
+
+    <!-- ===== API ENDPOINT INFO CARD — the key demo element ===== -->
+    <div class="api-card">
+      <div class="api-card-title">
+        <span>🔌 ERP Receiving Endpoint</span>
+        <span class="badge">LIVE</span>
+      </div>
+      <div class="api-card-sub">
+        This is the API endpoint and token the Trade Fair Analyzer uses to push lead data into this ERP system.
+        In production, the ERP development team would build the equivalent endpoint inside Kariwala's real ERP.
+      </div>
+      <div class="api-row">
+        <span class="key">Endpoint URL</span>
+        <span class="val" id="api-url">—</span>
+        <button class="copy-btn" data-copy="api-url">Copy</button>
+      </div>
+      <div class="api-row">
+        <span class="key">API Token</span>
+        <span class="val" id="api-token">kari_erp_pk_2026_a7f3b9c2d4e1f8g6h5j2k9l3m7n4p1q8</span>
+        <button class="copy-btn" data-copy="api-token">Copy</button>
+      </div>
+      <div class="api-row">
+        <span class="key">Auth Header</span>
+        <span class="val">Authorization: Bearer &lt;API Token&gt;</span>
+        <span></span>
+      </div>
+      <div class="api-card-footer">
+        💡 Paste these two values into your Trade Fair Analyzer → Cloud Sync Settings → ERP Bridge section.
+        The Analyzer will POST every saved lead to this URL with the token attached.
+      </div>
+    </div>
+
+    <div class="storage-indicator">
+      <span class="lbl">📊 ERP Storage Status:</span>
+      <span class="val" id="storage-count">0 buyers in ERP database</span>
+      <span class="sep">|</span>
+      <span class="lbl">Source:</span>
+      <span class="val">Trade Fair Analyzer</span>
+      <span class="sep">|</span>
+      <span class="lbl">Last sync:</span>
+      <span class="val" id="storage-time">—</span>
+    </div>
+
+    <div id="empty-pane" class="panel">
+      <div class="panel-header">BUYER DETAILS</div>
+      <div class="empty-state">
+        <div style="font-size:36px; opacity:0.4;">⏳</div>
+        <h3>No buyer selected</h3>
+        <p>Buyers transferred from the Trade Fair Analyzer will appear in the sidebar.<br>
+           Select a buyer to view the full Post-Fair Entry record.</p>
+      </div>
+    </div>
+
+    <div id="detail-pane" style="display:none;"></div>
+
+  </div>
+</div>
+
+<footer>
+  <a href="#">Home</a> |
+  <a href="#">Contact Us</a> |
+  <a href="#">Terms &amp; Conditions</a> |
+  <a href="#">Privacy</a>
+  <span style="float:right; color:var(--erp-muted);">Kariwala Industries Ltd. · ET-ERP Demo</span>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+const $ = (id) => document.getElementById(id);
+const POLL_MS = 3000;
+let allLeads = [];
+let selectedId = null;
+let lastSeenIds = new Set();
+let firstLoad = true;
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function fmtDate(v) {
+  if (!v) return '';
+  const d = new Date(v); if (isNaN(d.getTime())) return String(v);
+  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+}
+function fmtDateShort(v) {
+  if (!v) return '';
+  const d = new Date(v); if (isNaN(d.getTime())) return String(v);
+  return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: '2-digit' });
+}
+function fmtDateTime(v) {
+  if (!v) return '';
+  const d = new Date(v); if (isNaN(d.getTime())) return String(v);
+  return d.toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+function relTime(v) {
+  if (!v) return '';
+  const d = new Date(v); if (isNaN(d.getTime())) return '';
+  const s = Math.round((Date.now() - d.getTime()) / 1000);
+  if (s < 5) return 'just now';
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.round(s/60) + 'm ago';
+  if (s < 86400) return Math.round(s/3600) + 'h ago';
+  return Math.round(s/86400) + 'd ago';
+}
+function isoWeek(v) {
+  if (!v) return '';
+  const d = new Date(v); if (isNaN(d.getTime())) return '';
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = (t.getUTCDay() + 6) % 7;
+  t.setUTCDate(t.getUTCDate() - dayNum + 3);
+  const week1 = new Date(Date.UTC(t.getUTCFullYear(), 0, 4));
+  return 1 + Math.round(((t - week1) / 86400000 - 3 + ((week1.getUTCDay() + 6) % 7)) / 7);
+}
+function normalizeGrade(g) {
+  const v = String(g || '').trim();
+  if (v === 'A') return '$1';
+  if (v === 'B') return '$2';
+  if (v === 'C') return '$3';
+  if (v === 'D') return '$4';
+  return v || '';
+}
+function idBadgeClass(g) {
+  const v = normalizeGrade(g);
+  if (v === '$1') return 'id-1';
+  if (v === '$2') return 'id-2';
+  if (v === '$3') return 'id-3';
+  if (v === '$4') return 'id-4';
+  return 'id-x';
+}
+function idStatusDisplay(g) {
+  const v = normalizeGrade(g);
+  if (v === '$1') return '$$$$';
+  if (v === '$2') return '$$$';
+  if (v === '$3') return '$$';
+  if (v === '$4') return '$';
+  return v || '—';
+}
+function probabilityFromGrade(g) {
+  const v = normalizeGrade(g);
+  return v === '$1' ? 80 : v === '$2' ? 50 : v === '$3' ? 25 : v === '$4' ? 10 : 0;
+}
+function potentialLakhs(l) {
+  const v = String(l.volume || '').toUpperCase();
+  let base = v === 'FCL' ? 10 : v === 'LCL' ? 2 : 5;
+  const total = Number(l.totalScore || 0);
+  if (total >= 8) base *= 1.3;
+  else if (total < 5) base *= 0.6;
+  return base.toFixed(2);
+}
+function itemFromCategory(cat) {
+  const c = String(cat || '').toLowerCase();
+  if (c.includes('shop')) return 'Shopping Bags';
+  if (c.includes('promo')) return 'Promotional Bags';
+  if (c.includes('fashion')) return 'Fashion Bags';
+  return cat || 'Bags';
+}
+
+async function fetchLeads() {
+  try {
+    const res = await fetch('/api/leads', { method: 'GET', cache: 'no-store' });
+    const data = await res.json();
+    if (!data.ok) { setLive(false, data.message || 'Could not load buyers'); return; }
+    setLive(true);
+    handleNew(data.leads || []);
+    const ts = new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    $('storage-time').textContent = ts;
+    const cnt = (data.leads || []).length;
+    $('storage-count').textContent = cnt + ' buyer' + (cnt === 1 ? '' : 's') + ' in ERP database';
+  } catch (e) {
+    setLive(false, 'Connection error');
+  }
+}
+function setLive(ok, msg) {
+  const pill = $('live-pill'), txt = $('live-text');
+  if (ok) { pill.classList.remove('err'); txt.textContent = 'Live · auto-sync 3s'; }
+  else    { pill.classList.add('err'); txt.textContent = msg || 'Offline'; }
+}
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+function handleNew(rawLeads) {
+  const list = rawLeads.map(normalizeLead);
+  list.sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0));
+  const newOnes = [];
+  if (!firstLoad) {
+    list.forEach(l => { if (l.id && !lastSeenIds.has(l.id)) newOnes.push(l); });
+    if (newOnes.length === 1) showToast('New buyer received from TFA: ' + (newOnes[0].company || newOnes[0].buyerName));
+    else if (newOnes.length > 1) showToast(newOnes.length + ' new buyers received');
+  }
+  lastSeenIds = new Set(list.map(l => l.id).filter(Boolean));
+  firstLoad = false;
+  allLeads = list;
+  renderList(newOnes.map(l => l.id));
+  if (selectedId) {
+    const sel = allLeads.find(l => l.id === selectedId);
+    if (sel) renderDetail(sel);
+  } else if (allLeads.length === 1) {
+    selectLead(allLeads[0].id);
+  }
+}
+function normalizeLead(row) {
+  const g = (k) => (row[k] != null ? row[k] : '');
+  return {
+    id: g('Lead ID'), savedAt: g('Saved At'), showName: g('Trade Show'),
+    merchandiserName: g('Merchandiser Name'), merchandiserEmail: g('Merchandiser Email'),
+    firstName: g('First Name'), lastName: g('Last Name'),
+    designation: g('Designation'), company: g('Company'),
+    email: g('Email'), phone: g('Phone'), website: g('Website'),
+    country: g('Country'), address: g('Address'), vat: g('VAT'),
+    dayMet: g('Day Met'), category: g('Category'), volume: g('Volume'),
+    persona: g('Persona'), custType: g('Customer Type'),
+    buyingIndia: g('Buying From India'), catalogue: g('Catalogue Collected'),
+    notes: g('Notes'),
+    grade: normalizeGrade(g('Grade')), totalScore: g('Total Score'),
+    sMarket: g('Score: Market Research'), sRecency: g('Score: Recency'),
+    sOpp: g('Score: Opportunity'), sFit: g('Score: Customer Fit'),
+    sDigital: g('Score: Digital'),
+    recommendedAction: g('Recommended Action'),
+    findings: String(g('Key Findings') || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean),
+    gaps: String(g('Data Gaps') || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean),
+    iTurnover: g('Intel: Turnover'), iEmployees: g('Intel: Employees'),
+    iSuppliers: g('Intel: Current Suppliers'), iProducts: g('Intel: Products Bought'),
+    iPositioning: g('Intel: Positioning'), iStrategy: g('Intel: Conversion Strategy'),
+    e1Date: g('Email 1 Send Date'), e1Subject: g('Email 1 Subject'), e1Body: g('Email 1 Body'),
+    e2Date: g('Email 2 Send Date'), e2Subject: g('Email 2 Subject'), e2Body: g('Email 2 Body'),
+    e3Date: g('Email 3 Send Date'), e3Subject: g('Email 3 Subject'), e3Body: g('Email 3 Body'),
+    buyerName: ((g('First Name') || '') + ' ' + (g('Last Name') || '')).trim()
+  };
+}
+
+function renderList(newIds) {
+  const newSet = new Set(newIds || []);
+  $('lead-count').textContent = allLeads.length;
+  const box = $('lead-list');
+  if (!allLeads.length) {
+    box.innerHTML = '<div style="padding:24px; text-align:center; color:var(--erp-muted); font-size:12px;">No buyers received yet. Save a lead in the Trade Fair Analyzer to populate this list.</div>';
+    return;
+  }
+  box.innerHTML = allLeads.map(l => {
+    const cls = (selectedId === l.id ? ' selected' : '') + (newSet.has(l.id) ? ' new-arrival' : '');
+    return '<div class="lead-row' + cls + '" data-id="' + esc(l.id) + '">' +
+      '<div class="lead-row-top">' +
+        '<div class="lead-row-company">' + esc(l.company || '(unnamed)') + '</div>' +
+        '<span class="id-badge ' + idBadgeClass(l.grade) + '">' + esc(l.grade || '—') + '</span>' +
+      '</div>' +
+      '<div class="lead-row-buyer">' + esc(l.buyerName || '—') + '</div>' +
+      '<div class="lead-row-time">' + esc(l.country || '—') + ' · ' + esc(relTime(l.savedAt)) + '</div>' +
+    '</div>';
+  }).join('');
+  box.querySelectorAll('.lead-row').forEach(row => {
+    row.addEventListener('click', () => selectLead(row.getAttribute('data-id')));
+  });
+}
+
+function selectLead(id) {
+  selectedId = id;
+  const l = allLeads.find(x => x.id === id);
+  if (!l) return;
+  document.querySelectorAll('.lead-row').forEach(r =>
+    r.classList.toggle('selected', r.getAttribute('data-id') === id));
+  $('empty-pane').style.display = 'none';
+  $('detail-pane').style.display = 'block';
+  renderDetail(l);
+}
+
+function renderDetail(l) {
+  const item = itemFromCategory(l.category);
+  const prob = probabilityFromGrade(l.grade);
+  const pot  = potentialLakhs(l);
+  const weight = (Number(pot) * prob / 100).toFixed(2);
+  const dayMetWk = isoWeek(l.savedAt);
+  const e1Wk = isoWeek(l.e1Date);
+  const idStat = idStatusDisplay(l.grade);
+  const totalScore = (typeof l.totalScore === 'number') ? l.totalScore.toFixed(2) : (l.totalScore || '—');
+
+  const findingsHtml = l.findings.length
+    ? '<ul>' + l.findings.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul>'
+    : '<div class="val empty">—</div>';
+  const gapsHtml = l.gaps.length
+    ? '<ul>' + l.gaps.map(g => '<li>' + esc(g) + '</li>').join('') + '</ul>'
+    : '<div class="val empty">—</div>';
+
+  $('detail-pane').innerHTML =
+    '<div class="panel">' +
+      '<div class="panel-header">BUYER DETAILS</div>' +
+      '<div class="buyer-summary">' +
+        '<div class="first-row">' +
+          '<div style="font-weight:600;">Buyer: <span style="color:var(--erp-blue-dark); margin-left:8px;">' + esc(l.company || '—') + '</span></div>' +
+          '<div>' +
+            '<span style="font-weight:600; margin-right:10px;">First Point of Contact :</span>' +
+            '<select class="fpoc-select" disabled><option>' + esc(l.showName || 'Trade Show') + '</option></select>' +
+          '</div>' +
+        '</div>' +
+        '<div class="col"><div class="lbl">Category :</div><div class="val">' + esc(l.category || '—') + '</div></div>' +
+        '<div class="col"><div class="lbl">Country :</div><div class="val">' + esc(l.country || '—') + '</div></div>' +
+        '<div class="col"><div class="lbl">ID Status :</div><div class="val">' + esc(idStat) + '</div></div>' +
+        '<div class="col"><div class="lbl">Merchandiser :</div><div class="val">' + esc(l.merchandiserName || '—') + '</div></div>' +
+        '<div class="col"><div class="lbl">Website :</div><div class="val"><a href="' + esc(l.website || '#') + '" target="_blank" style="color:var(--erp-blue-dark);">' + esc(l.website || '—') + '</a></div></div>' +
+        '<div class="col"><div class="lbl">Email :</div><div class="val" style="font-size:11.5px;">' + esc(l.email || '—') + '</div></div>' +
+        '<div class="col"><div class="lbl">Phone :</div><div class="val" style="font-size:11.5px;">' + esc(l.phone || '—') + '</div></div>' +
+      '</div>' +
+      '<div class="form-grid">' +
+        formField('ID Status After Review :', idStat, 'select', ['$', '$$', '$$$', '$$$$']) +
+        formField('Item :', item, 'select', ['Beach Bags', 'Shopping Bags', 'Promotional Bags', 'Fashion Bags']) +
+        formField('Last Activity Week :', dayMetWk ? 'Wk ' + dayMetWk : '—') +
+        formField('Last Activity :', 'Email') +
+        formField('Potential (Rs. In Lakhs) :', pot) +
+        formField('Probability in % :', prob) +
+        formField('Weight Total (Rs. In Lakhs) :', weight) +
+        formField('Order Materialized :', 'No', 'select', ['No', 'Yes']) +
+        formField('Communication :', 'One Way', 'select', ['One Way', 'Two Way']) +
+        formField('Telephonic Conversation :', 'Not Done', 'select', ['Not Done', 'Done']) +
+        formField('Initial Thanks Email (Wk No.) :', e1Wk || '—') +
+        formField('Email of Fair Notes (Wk No.) :', dayMetWk ? (dayMetWk + 2) : '—') +
+        formField('1st Follow Up :', fmtDateShort(l.e2Date)) +
+        formField('1st Call :', '') +
+        formField('2nd Follow Up :', fmtDateShort(l.e3Date)) +
+        formField('2nd Call :', '') +
+        formField('3rd Follow Up :', '') +
+        '<div class="form-field half2"><label>Remarks :</label><textarea readonly>' + esc(l.notes || '') + '</textarea></div>' +
+      '</div>' +
+      '<div class="form-actions">' +
+        '<button class="btn btn-update" type="button">Update</button>' +
+        '<button class="btn btn-back" type="button">Back</button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="panel">' +
+      '<div class="panel-header with-new">' +
+        '<span>AI-GENERATED INTELLIGENCE</span>' +
+        '<span class="new-badge">⚡ NEW — to be added</span>' +
+      '</div>' +
+      '<div class="new-section-note">' +
+        '<b>Note for ERP development team:</b> The fields in this section do not exist in the current Post-Fair Analysis module. ' +
+        'They are auto-generated by the Trade Fair Analyzer and need to be added on the ERP side to receive them.' +
+      '</div>' +
+
+      '<div class="ai-sub">' +
+        '<div class="ai-sub-header">' +
+          '<div class="ai-sub-title">1. AI Scoring Breakdown</div>' +
+          '<div class="ai-sub-badge">NEW</div>' +
+          '<div class="ai-sub-note">Drives the ID Status auto-fill</div>' +
+        '</div>' +
+        '<table class="score-table">' +
+          '<thead><tr><th>Criterion</th><th>Weight</th><th>Score (0-10)</th><th>Weighted</th></tr></thead>' +
+          '<tbody>' +
+            scoreRow('Market Research / Buying Relevance', '30%', l.sMarket, 0.30) +
+            scoreRow('Meetings / Interaction Recency', '20%', l.sRecency, 0.20) +
+            scoreRow('Opportunity Status', '20%', l.sOpp, 0.20) +
+            scoreRow('Customer Fit &amp; Potential', '20%', l.sFit, 0.20) +
+            scoreRow('Digital &amp; Social Presence', '10%', l.sDigital, 0.10) +
+            '<tr class="total"><td>Total Weighted Score</td><td>100%</td><td>—</td><td>' + esc(totalScore) + ' / 10</td></tr>' +
+          '</tbody>' +
+        '</table>' +
+      '</div>' +
+
+      '<div class="ai-sub">' +
+        '<div class="ai-sub-header">' +
+          '<div class="ai-sub-title">2. Recommended Action</div>' +
+          '<div class="ai-sub-badge">NEW</div>' +
+        '</div>' +
+        '<div class="action-box">' + esc(l.recommendedAction || '—') + '</div>' +
+      '</div>' +
+
+      '<div class="ai-sub">' +
+        '<div class="ai-sub-header">' +
+          '<div class="ai-sub-title">3. Key Findings &amp; Data Gaps</div>' +
+          '<div class="ai-sub-badge">NEW</div>' +
+        '</div>' +
+        '<div class="two-col">' +
+          '<div class="findings-block"><h4>Key Findings</h4>' + findingsHtml + '</div>' +
+          '<div class="gaps-block"><h4>Data Gaps</h4>' + gapsHtml + '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="ai-sub">' +
+        '<div class="ai-sub-header">' +
+          '<div class="ai-sub-title">4. Market Intelligence Report</div>' +
+          '<div class="ai-sub-badge">NEW</div>' +
+          '<div class="ai-sub-note">Currently missing entirely from the ERP page</div>' +
+        '</div>' +
+        '<div class="intel-grid">' +
+          intelField('Estimated Annual Turnover', l.iTurnover) +
+          intelField('Company Size / Employees', l.iEmployees) +
+        '</div>' +
+        '<div class="intel-grid full" style="margin-top:12px;">' +
+          intelField('Current Suppliers', l.iSuppliers) +
+          intelField('Products They Currently Buy / Sell', l.iProducts) +
+          intelField('Market Positioning', l.iPositioning) +
+          intelField('Conversion Strategy', l.iStrategy) +
+        '</div>' +
+      '</div>' +
+
+      '<div class="ai-sub">' +
+        '<div class="ai-sub-header">' +
+          '<div class="ai-sub-title">5. Full Email Drafts</div>' +
+          '<div class="ai-sub-badge">NEW</div>' +
+          '<div class="ai-sub-note">Real ERP only stores week numbers — these are the actual content</div>' +
+        '</div>' +
+        '<div class="email-stack">' +
+          emailCard('Initial Thanks · Day +3',  l.e1Date, l.email, l.e1Subject, l.e1Body) +
+          emailCard('1st Follow Up · Day +17',  l.e2Date, l.email, l.e2Subject, l.e2Body) +
+          emailCard('2nd Follow Up · Day +31',  l.e3Date, l.email, l.e3Subject, l.e3Body) +
+        '</div>' +
+      '</div>' +
+
+      '<div class="ai-sub">' +
+        '<div class="ai-sub-header">' +
+          '<div class="ai-sub-title">6. System Metadata</div>' +
+          '<div class="ai-sub-badge">NEW</div>' +
+        '</div>' +
+        '<div class="intel-grid">' +
+          intelField('Lead ID', l.id) +
+          intelField('Received in ERP at', fmtDateTime(l.savedAt)) +
+          intelField('Source', 'Trade Fair Analyzer') +
+          intelField('Merchandiser Email', l.merchandiserEmail) +
+        '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+function formField(label, value, type, options) {
+  const safe = esc(value == null || value === '' ? '' : String(value));
+  if (type === 'select' && Array.isArray(options)) {
+    const opts = options.map(o => '<option' + (String(o) === String(value) ? ' selected' : '') + '>' + esc(o) + '</option>').join('');
+    return '<div class="form-field"><label>' + esc(label) + '</label><select disabled>' + opts + '</select></div>';
+  }
+  return '<div class="form-field"><label>' + esc(label) + '</label>' +
+    '<input type="text" readonly value="' + safe + '"></div>';
+}
+function scoreRow(label, weight, score, w) {
+  const s = (score === '' || score == null) ? '—' : score;
+  const wt = (typeof score === 'number') ? (score * w).toFixed(2) : '—';
+  return '<tr><td>' + label + '</td><td>' + weight + '</td><td>' + esc(s) + '</td><td>' + esc(wt) + '</td></tr>';
+}
+function intelField(label, value) {
+  const empty = (value == null || value === '');
+  return '<div class="intel-field"><div class="lbl">' + esc(label) + '</div>' +
+    '<div class="val' + (empty ? ' empty' : '') + '">' + esc(empty ? '—' : value) + '</div></div>';
+}
+function emailCard(title, date, to, subject, body) {
+  return '<div class="email-card">' +
+    '<div class="email-card-head">' +
+      '<div class="email-card-title">' + esc(title) + '</div>' +
+      '<div class="email-card-date">📅 ' + esc(fmtDate(date) || '—') + '</div>' +
+    '</div>' +
+    '<div class="email-card-meta">To: <b>' + esc(to || '—') + '</b></div>' +
+    '<div class="email-card-subject">Subject: ' + esc(subject || '—') + '</div>' +
+    '<div class="email-card-body">' + esc(body || '(empty)') + '</div>' +
+  '</div>';
+}
+
+fetchLeads();
+setInterval(fetchLeads, POLL_MS);
+
+// Auto-fill the API endpoint URL with the current Vercel deployment URL
+(function initApiCard() {
+  const origin = window.location.origin || '';
+  $('api-url').textContent = origin + '/api/erp-receive';
+
+  // Copy buttons
+  document.querySelectorAll('.copy-btn[data-copy]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = $(btn.getAttribute('data-copy'));
+      if (!target) return;
+      navigator.clipboard.writeText(target.textContent || '').then(() => {
+        const original = btn.textContent;
+        btn.classList.add('copied');
+        btn.textContent = 'Copied ✓';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.textContent = original;
+        }, 1500);
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
